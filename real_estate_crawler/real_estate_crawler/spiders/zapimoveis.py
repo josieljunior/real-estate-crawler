@@ -46,29 +46,21 @@ class ZapimoveisSpider(scrapy.Spider):
 
     def parse(self, response):
         json_response = response.json()
-        with open('resposta.json', 'w') as file:
-            for result in json_response['search']['result']['listings']:
-                pp = result['listing']
-                items = RealEstateCrawlerItem()
-                items['lat'] = self.get_address(pp, 'lat')
-                items['lon'] = self.get_address(pp, 'lon')
-                items['area'] = pp['usableAreas'][0]
-                items['type'] = pp['unitTypes'][0]
-                items['bedrooms'] = pp['bedrooms'][0]
-                items['bathrooms'] = pp['bathrooms'][0]
-                items['parking_spaces'] = self.get_parking_space(pp)
-                items['price'] = pp['pricingInfos'][0]['price']
 
+        for result in json_response['search']['result']['listings']:
+            pp = result['listing']
+            items = RealEstateCrawlerItem()
 
-           
-                for key in ['lat', 'lon', 'area', 'type', 'bedrooms', 'bathrooms', 'parking_spaces', 'price']:
-                    if key in items:
-                        file.write(str(items[key]))
-                    file.write('\n')
-
-                file.write('------------------------------------------------------------------------------------------')
-                file.write('\n')
-        yield items
+            items['lat'] = self.get_address(pp, 'lat')
+            items['lon'] = self.get_address(pp, 'lon')
+            items['area'] = pp['usableAreas'][0]
+            items['type'] = pp['unitTypes'][0]
+            items['bedrooms'] = pp['bedrooms'][0]
+            items['bathrooms'] = pp['bathrooms'][0]
+            items['parking_spaces'] = self.get_parking_space(pp)
+            items['price'] = pp['pricingInfos'][0]['price']
+            
+            yield items
 
             
 
