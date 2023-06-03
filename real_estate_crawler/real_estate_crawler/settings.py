@@ -14,10 +14,22 @@ NEWSPIDER_MODULE = "real_estate_crawler.spiders"
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/113.0"
+USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_2) AppleWebKit/601.3.9 (KHTML, like Gecko) Version/9.0.2 ' \
+             'Safari/601.3.9'
 
-# Obey robots.txt rules
-ROBOTSTXT_OBEY = True
+DOWNLOAD_DELAY = 2
+DOWNLOAD_TIMEOUT = 16
+
+CONCURRENT_REQUESTS_PER_DOMAIN = 1
+
+AUTOTHROTTLE_ENABLED = True
+AUTOTHROTTLE_START_DELAY = 5
+AUTOTHROTTLE_MAX_DELAY = 15
+AUTOTHROTTLE_DEBUG = True
+
+COOKIES_ENABLED = False
+TELNETCONSOLE_ENABLED = False
+
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 #CONCURRENT_REQUESTS = 32
