@@ -12,7 +12,7 @@ class RealEstateCrawlerItem(scrapy.Item):
     lon = Field()
     area = Field()
     type = Field()
-    badrooms = Field()
+    bedrooms = Field()
     bathrooms = Field()
     parking_spaces = Field()
     price = Field()
