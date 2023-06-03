@@ -6,6 +6,12 @@ from real_estate_crawler.items import RealEstateCrawlerItem
 PAGE_SIZE = 24
 
 class ZapimoveisSpider(scrapy.Spider):
+    custom_settings = {
+        'FEEDS': {
+            'data_zapimoveis.csv': {'format': 'csv'},
+        }
+    }
+
     name = "zapimoveis"
     allowed_domains = ["zapimoveis.com.br"]
     start_urls = ["https://zapimoveis.com.br"]
@@ -59,7 +65,7 @@ class ZapimoveisSpider(scrapy.Spider):
             items['bathrooms'] = pp['bathrooms'][0]
             items['parking_spaces'] = self.get_parking_space(pp)
             items['price'] = pp['pricingInfos'][0]['price']
-            
+
             yield items
 
             
