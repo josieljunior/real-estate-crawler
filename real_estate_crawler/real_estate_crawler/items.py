@@ -4,9 +4,16 @@
 # https://docs.scrapy.org/en/latest/topics/items.html
 
 import scrapy
+from scrapy import Field
 
 
 class RealEstateCrawlerItem(scrapy.Item):
-    # define the fields for your item here like:
-    # name = scrapy.Field()
-    pass
+    lat = Field()
+    lon = Field()
+    area = Field()
+    type = Field()
+    badrooms = Field()
+    bathrooms = Field()
+    parking_spaces = Field()
+    price = Field()
+
