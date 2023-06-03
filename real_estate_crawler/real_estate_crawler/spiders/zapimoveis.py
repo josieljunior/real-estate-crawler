@@ -1,3 +1,4 @@
+import json
 import scrapy
 
 PAGE_SIZE = 24
@@ -42,7 +43,15 @@ class ZapimoveisSpider(scrapy.Spider):
         yield scrapy.Request(url=req_url, headers=self.headers)
 
     def parse(self, response):
+        json_response = response.json()
         with open('resposta.json', 'w') as file:
-            file.write(response.text)
+            for result in json_response['search']['result']['listings']:
+                json.dump(result, file)
+                file.write('\n')
+                file.write('------------------------------------------------------------------------------------------')
+                file.write('\n')
+
+        # with open('resposta.json', 'w') as file:
+        #     file.write(response.text)
             
 
