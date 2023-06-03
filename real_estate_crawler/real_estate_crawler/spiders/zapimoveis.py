@@ -2,16 +2,11 @@ import json
 import scrapy
 
 from real_estate_crawler.items import RealEstateCrawlerItem
+from real_estate_crawler.spiders import initZapImoveis
 
 PAGE_SIZE = 24
 
-class ZapimoveisSpider(scrapy.Spider):
-    custom_settings = {
-        'FEEDS': {
-            'data_zapimoveis.csv': {'format': 'csv'},
-        }
-    }
-
+class ZapimoveisSpider(initZapImoveis):
     name = "zapimoveis"
     allowed_domains = ["zapimoveis.com.br"]
     start_urls = ["https://zapimoveis.com.br"]
@@ -33,8 +28,7 @@ class ZapimoveisSpider(scrapy.Spider):
                 '&addressPointLat=-23.555771' \
                 '&addressPointLon=-46.639557' \
                 '&size={size}' \
-                '&from={from_}' \
-                '&page={page}' \
+                '&from={previus}' \
                 '&includeFields=search(result(listings(listing(listingsCount,sourceId,displayAddressType,amenities,usableAreas,constructionStatus,listingType,description,title,stamps,createdAt,floors,unitTypes,nonActivationReason,providerId,propertyType,unitSubTypes,unitsOnTheFloor,legacyId,id,portal,unitFloor,parkingSpaces,updatedAt,address,suites,publicationType,externalId,bathrooms,usageTypes,totalAreas,advertiserId,advertiserContact,whatsappNumber,bedrooms,acceptExchange,pricingInfos,showPrice,resale,buildings,capacityLimit,status,priceSuggestion,contractType),account(id,name,logoUrl,licenseNumber,showAddress,legacyVivarealId,legacyZapId,createdDate,minisite,tier),medias,accountLink,link)),totalCount),page,facets,fullUriFragments,developments(search(result(listings(listing(listingsCount,sourceId,displayAddressType,amenities,usableAreas,constructionStatus,listingType,description,title,stamps,createdAt,floors,unitTypes,nonActivationReason,providerId,propertyType,unitSubTypes,unitsOnTheFloor,legacyId,id,portal,unitFloor,parkingSpaces,updatedAt,address,suites,publicationType,externalId,bathrooms,usageTypes,totalAreas,advertiserId,advertiserContact,whatsappNumber,bedrooms,acceptExchange,pricingInfos,showPrice,resale,buildings,capacityLimit,status,priceSuggestion,contractType),account(id,name,logoUrl,licenseNumber,showAddress,legacyVivarealId,legacyZapId,createdDate,minisite,tier),medias,accountLink,link)),totalCount)),superPremium(search(result(listings(listing(listingsCount,sourceId,displayAddressType,amenities,usableAreas,constructionStatus,listingType,description,title,stamps,createdAt,floors,unitTypes,nonActivationReason,providerId,propertyType,unitSubTypes,unitsOnTheFloor,legacyId,id,portal,unitFloor,parkingSpaces,updatedAt,address,suites,publicationType,externalId,bathrooms,usageTypes,totalAreas,advertiserId,advertiserContact,whatsappNumber,bedrooms,acceptExchange,pricingInfos,showPrice,resale,buildings,capacityLimit,status,priceSuggestion,contractType),account(id,name,logoUrl,licenseNumber,showAddress,legacyVivarealId,legacyZapId,createdDate,minisite,tier),medias,accountLink,link)),totalCount)),schema' \
                 '&developmentsSize=3' \
                 '&superPremiumSize=3' \
@@ -47,8 +41,12 @@ class ZapimoveisSpider(scrapy.Spider):
     }
 
     def start_requests(self):
-        req_url = self.start_url.format(size=PAGE_SIZE, from_=0, page=1)
-        yield scrapy.Request(url=req_url, headers=self.headers)
+        page = self.start_page
+        while page < self.start_page + self.pages_to_crawl:
+            req_url = self.start_url.format(size=PAGE_SIZE, previus=(page - 1) * PAGE_SIZE)
+            yield scrapy.Request(url=req_url, headers=self.headers)
+            page += 1
+
 
     def parse(self, response):
         json_response = response.json()
