@@ -52,17 +52,17 @@ class ZapimoveisSpider(initZapImoveis):
         json_response = response.json()
 
         for result in json_response['search']['result']['listings']:
-            pp = result['listing']
+            json = result['listing']
             items = RealEstateCrawlerItem()
 
-            items['lat'] = self.get_address(pp, 'lat')
-            items['lon'] = self.get_address(pp, 'lon')
-            items['area'] = pp['usableAreas'][0]
-            items['type'] = pp['unitTypes'][0]
-            items['bedrooms'] = pp['bedrooms'][0]
-            items['bathrooms'] = pp['bathrooms'][0]
-            items['parking_spaces'] = self.get_parking_space(pp)
-            items['price'] = pp['pricingInfos'][0]['price']
+            items['lat'] = self.get_address(json, 'lat')
+            items['lon'] = self.get_address(json, 'lon')
+            items['area'] = json['usableAreas'][0]
+            items['type'] = json['unitTypes'][0]
+            items['bedrooms'] = json['bedrooms'][0]
+            items['bathrooms'] = json['bathrooms'][0]
+            items['parking_spaces'] = self.get_parking_space(json)
+            items['price'] = json['pricingInfos'][0]['price']
 
             items['crawler'] = self.name
             items['link'] = self.mount_link(result)
