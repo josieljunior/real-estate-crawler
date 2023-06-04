@@ -9,7 +9,7 @@ PAGE_SIZE = 24
 class ZapimoveisSpider(initZapImoveis):
     name = "zapimoveis"
     allowed_domains = ["zapimoveis.com.br"]
-    start_urls = ["https://zapimoveis.com.br"]
+
     start_url = 'https://glue-api.zapimoveis.com.br/v2/listings?' \
                 'categoryPage=RESULT' \
                 '&business=SALE' \
@@ -64,6 +64,9 @@ class ZapimoveisSpider(initZapImoveis):
             items['parking_spaces'] = self.get_parking_space(pp)
             items['price'] = pp['pricingInfos'][0]['price']
 
+            items['crawler'] = self.name
+            items['link'] = self.mount_link(result)
+            
             yield items
 
             
@@ -78,3 +81,6 @@ class ZapimoveisSpider(initZapImoveis):
         if 'parkingSpaces' in json and len(json['parkingSpaces']) > 0:
             return json['parkingSpaces'][0]
         return '0'
+    
+    def mount_link(self, json):
+        return "zapimoveis.com.br" + json['link']['href']

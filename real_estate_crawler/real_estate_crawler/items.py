@@ -8,6 +8,8 @@ from scrapy import Field
 
 
 class RealEstateCrawlerItem(scrapy.Item):
+    crawler = Field()
+    link = Field()
     lat = Field()
     lon = Field()
     area = Field()
