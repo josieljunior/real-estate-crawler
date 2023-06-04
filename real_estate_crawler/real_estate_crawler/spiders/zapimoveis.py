@@ -4,7 +4,7 @@ import scrapy
 from real_estate_crawler.items import RealEstateCrawlerItem
 from real_estate_crawler.spiders import initZapImoveis
 
-PAGE_SIZE = 24
+PAGE_SIZE = 100
 
 class ZapimoveisSpider(initZapImoveis):
     name = "zapimoveis"
@@ -15,7 +15,7 @@ class ZapimoveisSpider(initZapImoveis):
                 '&business=SALE' \
                 '&listingType=USED' \
                 '&parentId=null' \
-                '&unitTypes=APARTMENT,HOME,HOME' \
+                '&unitTypes=APARTMENT,HOME' \
                 '&unitSubTypes=UnitSubType_NONE,DUPLEX,TRIPLEX|UnitSubType_NONE,SINGLE_STOREY_HOUSE,KITNET|TWO_STORY_HOUSE' \
                 '&usageTypes=RESIDENTIAL,RESIDENTIAL,RESIDENTIAL' \
                 '&unitTypesV3=APARTMENT,HOME,TWO_STORY_HOUSE' \
