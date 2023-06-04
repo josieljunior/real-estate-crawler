@@ -11,11 +11,12 @@ class RealEstateCrawlerItem(scrapy.Item):
     crawler = Field()
     link = Field()
     lat = Field()
-    lon = Field()
+    lng = Field()
     area = Field()
     type = Field()
     bedrooms = Field()
     bathrooms = Field()
     parking_spaces = Field()
     price = Field()
+    address = Field()
 

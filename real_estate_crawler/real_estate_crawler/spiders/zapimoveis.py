@@ -52,17 +52,18 @@ class ZapimoveisSpider(initZapImoveis):
         json_response = response.json()
 
         for result in json_response['search']['result']['listings']:
-            json = result['listing']
+            json_item = result['listing']
             items = RealEstateCrawlerItem()
 
-            items['lat'] = self.get_address(json, 'lat')
-            items['lon'] = self.get_address(json, 'lon')
-            items['area'] = json['usableAreas'][0]
-            items['type'] = json['unitTypes'][0]
-            items['bedrooms'] = json['bedrooms'][0]
-            items['bathrooms'] = json['bathrooms'][0]
-            items['parking_spaces'] = self.get_parking_space(json)
-            items['price'] = json['pricingInfos'][0]['price']
+            items['lat'] = self.get_geocode(json_item, 'lat')
+            items['lng'] = self.get_geocode(json_item, 'lon')
+            items['area'] = json_item['usableAreas'][0]
+            items['type'] = json_item['unitTypes'][0]
+            items['bedrooms'] = json_item['bedrooms'][0]
+            items['bathrooms'] = json_item['bathrooms'][0]
+            items['parking_spaces'] = self.get_parking_space(json_item)
+            items['price'] = json_item['pricingInfos'][0]['price']
+            items['address'] = self.get_address(result)
 
             items['crawler'] = self.name
             items['link'] = self.mount_link(result)
@@ -71,16 +72,28 @@ class ZapimoveisSpider(initZapImoveis):
 
             
 
-    def get_address(self, json, key):
-        if 'address' in json and 'point' in json['address']:
-            return json['address']['point'][key]
+    def get_geocode(self, json_item, key):
+        if 'address' in json_item and 'point' in json_item['address']:
+            return json_item['address']['point'][key]
         else:
-            return json['address']['zipCode']
+            return "null"
             
-    def get_parking_space(self, json):
-        if 'parkingSpaces' in json and len(json['parkingSpaces']) > 0:
-            return json['parkingSpaces'][0]
+    def get_parking_space(self, json_item):
+        if 'parkingSpaces' in json_item and len(json_item['parkingSpaces']) > 0:
+            return json_item['parkingSpaces'][0]
         return '0'
     
-    def mount_link(self, json):
-        return "zapimoveis.com.br" + json['link']['href']
+    def mount_link(self, json_item):
+        return "zapimoveis.com.br" + json_item['link']['href']
+    
+    def get_address(self, json_item):
+        data = json_item['link']['data']
+        street = data['street']
+        streetNumber = data['streetNumber']
+        neighborhood = data['neighborhood']
+        city = data['city']
+        state = data['state']
+        if street:
+            return f"{street}, {streetNumber}, {neighborhood}, {city} - {state}"
+        else:
+            return json_item['listing']['address']['zipCode']
