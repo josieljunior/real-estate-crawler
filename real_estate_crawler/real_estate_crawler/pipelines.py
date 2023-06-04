@@ -10,4 +10,12 @@ from itemadapter import ItemAdapter
 
 class RealEstateCrawlerPipeline:
     def process_item(self, item, spider):
+        adapter = ItemAdapter(item)
+
+        self.lowercase(adapter)
+
         return item
+
+    def lowercase(self, adapter):   
+        value = adapter.get('type')
+        adapter['type'] = value.lower()
