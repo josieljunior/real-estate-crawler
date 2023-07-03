@@ -19,8 +19,8 @@ class RealEstateCrawlerPipeline:
         adapter = ItemAdapter(item)
 
         self.lowercase(adapter)
-        # self.decode_address(adapter)
-        # self.geocoding(adapter)
+        self.decode_address(adapter)
+        self.geocoding_active(adapter)
 
         return item
 
@@ -29,7 +29,7 @@ class RealEstateCrawlerPipeline:
         adapter['type'] = value.lower()
 
     def decode_address(self, adapter):
-        adapter['address'] = codecs.decode(adapter.get('address'), 'unicode_escape')
+        adapter['address'] = adapter.get('address').encode('latin-1').decode('unicode_escape')
 
     def geocoding(self, adapter):
         if adapter.get('lat') == 'null':
@@ -42,3 +42,9 @@ class RealEstateCrawlerPipeline:
             else:
                 adapter['lat'] = "erro"
                 adapter['lng'] = "erro"
+
+
+    def geocoding_active(self, adapter):
+        env_geolocation = os.getenv("GEOCODING_ACTIVE")
+        if env_geolocation:
+            self.geocoding(adapter)

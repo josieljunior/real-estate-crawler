@@ -49,7 +49,10 @@ class ZapimoveisSpider(initZapImoveis):
 
 
     def parse(self, response):
-        json_response = response.json()
+        conteudo_bytes = response.body
+        conteudo_string = conteudo_bytes.decode('utf-8')
+        json_response = json.loads(conteudo_string)
+
 
         for result in json_response['search']['result']['listings']:
             json_item = result['listing']
