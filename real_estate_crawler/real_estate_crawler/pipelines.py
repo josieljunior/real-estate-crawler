@@ -45,6 +45,6 @@ class RealEstateCrawlerPipeline:
 
 
     def geocoding_active(self, adapter):
-        env_geolocation = os.getenv("GEOCODING_ACTIVE")
+        env_geolocation = os.getenv("GEOCODING_ACTIVE") or False
         if env_geolocation:
             self.geocoding(adapter)
