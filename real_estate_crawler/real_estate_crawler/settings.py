@@ -29,7 +29,7 @@ AUTOTHROTTLE_DEBUG = True
 
 COOKIES_ENABLED = False
 TELNETCONSOLE_ENABLED = False
-
+LOG_FILE = 'scrapy.log'
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 #CONCURRENT_REQUESTS = 32
@@ -76,6 +76,7 @@ TELNETCONSOLE_ENABLED = False
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
    "real_estate_crawler.pipelines.RealEstateCrawlerPipeline": 300,
+   'real_estate_crawler.pipelines.SQLAlchemyPipeline': 400,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
