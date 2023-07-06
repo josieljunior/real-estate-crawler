@@ -9,7 +9,13 @@ from itemadapter import ItemAdapter
 import googlemaps
 import os
 from dotenv import load_dotenv
-import codecs
+
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.exc import SQLAlchemyError
+from .models import Property, Price
+from .database import engine
+import logging
+from scrapy.exceptions import DropItem
 
 class RealEstateCrawlerPipeline:
     load_dotenv()
@@ -20,7 +26,7 @@ class RealEstateCrawlerPipeline:
 
         self.lowercase(adapter)
         self.decode_address(adapter)
-        self.geocoding_active(adapter)
+        # self.geocoding_active(adapter)
 
         return item
 
@@ -31,6 +37,50 @@ class RealEstateCrawlerPipeline:
     def decode_address(self, adapter):
         adapter['address'] = adapter.get('address').encode('latin-1').decode('unicode_escape')
 
+
+
+class SQLAlchemyPipeline:
+    def __init__(self):
+        self.Session = sessionmaker(bind=engine)
+
+    def open_spider(self, spider):
+        self.session = self.Session()
+
+    def close_spider(self, spider):
+        self.session.close()
+
+    def process_item(self, item, spider):
+        price_value = item.pop('price')
+        session = self.Session()
+        
+        try:
+            existing_property = session.query(Property).filter_by(link=item['link']).first()
+            if existing_property:
+                existing_price = existing_property.prices[-1] if existing_property.prices else None
+
+                if existing_price and existing_price.price != price_value:
+                    price_item = Price(price=price_value)
+                    existing_property.prices.append(price_item)
+                    session.add(price_item)
+                    session.commit()
+                    session.close()
+                else:
+                    raise DropItem(f"Already exists link:{item['link']}")
+            else:
+                self.geocoding_active(item)
+                property_item = Property(**item)
+                price_item = Price(price=price_value)
+                property_item.prices.append(price_item)
+                session.add(property_item)
+                session.commit()
+                session.close()
+        
+        except SQLAlchemyError as e:
+            session.rollback()
+            logging.error(f"Error saving item to the database: {e}")
+        
+        return item
+
     def geocoding(self, adapter):
         if adapter.get('lat') == 'null':
             geocode = self.gmaps.geocode(adapter.get('address'))
@@ -40,11 +90,14 @@ class RealEstateCrawlerPipeline:
                 adapter['lat'] = result['lat']
                 adapter['lng'] = result['lng']
             else:
-                adapter['lat'] = "erro"
-                adapter['lng'] = "erro"
+                raise DropItem("Geolocation not found")
 
 
-    def geocoding_active(self, adapter):
+    def geocoding_active(self, item):
+        adapter = ItemAdapter(item)
         env_geolocation = os.getenv("GEOCODING_ACTIVE") or False
-        if env_geolocation:
+        if env_geolocation == True:
             self.geocoding(adapter)
+        else:
+            adapter['lat'] = 0
+            adapter['lng'] = 0
