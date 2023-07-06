@@ -18,9 +18,6 @@ import logging
 from scrapy.exceptions import DropItem
 
 class RealEstateCrawlerPipeline:
-    load_dotenv()
-    gmaps = googlemaps.Client(key=os.getenv("GEOCODING_KEY"))
-
     def process_item(self, item, spider):
         adapter = ItemAdapter(item)
 
@@ -52,20 +49,19 @@ class SQLAlchemyPipeline:
     def process_item(self, item, spider):
         price_value = item.pop('price')
         session = self.Session()
-        
         try:
             existing_property = session.query(Property).filter_by(link=item['link']).first()
+            
             if existing_property:
                 existing_price = existing_property.prices[-1] if existing_property.prices else None
 
-                if existing_price and existing_price.price != price_value:
+                if existing_price and existing_price.price != float(price_value):
                     price_item = Price(price=price_value)
                     existing_property.prices.append(price_item)
                     session.add(price_item)
                     session.commit()
-                    session.close()
                 else:
-                    raise DropItem(f"Already exists link:{item['link']}")
+                    raise DropItem(f"Already exists link:{item['link']}")  
             else:
                 self.geocoding_active(item)
                 property_item = Property(**item)
@@ -73,12 +69,11 @@ class SQLAlchemyPipeline:
                 property_item.prices.append(price_item)
                 session.add(property_item)
                 session.commit()
-                session.close()
-        
+            session.close()
         except SQLAlchemyError as e:
             session.rollback()
+            session.close()
             logging.error(f"Error saving item to the database: {e}")
-        
         return item
 
     def geocoding(self, adapter):
@@ -94,10 +89,13 @@ class SQLAlchemyPipeline:
 
 
     def geocoding_active(self, item):
+        load_dotenv()
         adapter = ItemAdapter(item)
-        env_geolocation = os.getenv("GEOCODING_ACTIVE") or False
-        if env_geolocation == True:
+        env_geolocation = os.getenv("GEOCODING_ACTIVE")
+        
+        if env_geolocation == 'true':
+            self.gmaps = googlemaps.Client(key=os.getenv("GEOCODING_KEY"))
             self.geocoding(adapter)
         else:
-            adapter['lat'] = 0
-            adapter['lng'] = 0
+            raise DropItem("Geolocation is null")
+    

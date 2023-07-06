@@ -7,8 +7,8 @@ Base = declarative_base()
 class Property(Base):
     __tablename__ = 'properties'
     id = Column(Integer, primary_key=True)
-    lat = Column(Float)
-    lng = Column(Float)
+    lat = Column(String(255))
+    lng = Column(String(255))
     area = Column(Float)
     type = Column(String(255))
     bedrooms = Column(Integer)
