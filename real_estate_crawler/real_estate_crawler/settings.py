@@ -29,7 +29,7 @@ AUTOTHROTTLE_DEBUG = True
 
 COOKIES_ENABLED = False
 TELNETCONSOLE_ENABLED = False
-LOG_FILE = 'scrapy.log'
+# LOG_FILE = 'scrapy.log'
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 #CONCURRENT_REQUESTS = 32
