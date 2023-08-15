@@ -11,7 +11,9 @@ class LopesSpider(initLopes):
     allowed_domains = ["lopes.com.br"]
 
     start_url = 'https://apis.lopes.com.br/portal-home/v2/search/cache/sale/br/sp/sao-paulo?' \
-                'score.boost.product.address.city=São Paulo' \
+                'divisionTypes=APARTMENT,HOUSE' \
+                '&divisionUnitTypes=casa,apartamento' \
+                '&score.boost.product.address.city=São Paulo' \
                 '&placeId=ChIJ0WGkg4FEzpQRrlsz_whLqZs' \
                 '&isGeolocation=true' \
                 '&page={previus}' \
