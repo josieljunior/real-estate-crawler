@@ -21,20 +21,33 @@ class RealEstateCrawlerPipeline:
     def process_item(self, item, spider):
         adapter = ItemAdapter(item)
 
-        self.lowercase(adapter)
         self.decode_address(adapter)
-        # self.geocoding_active(adapter)
+        self.get_type(adapter)
+        self.format_number(adapter)
 
         return item
-
-    def lowercase(self, adapter):   
-        value = adapter.get('type')
-        adapter['type'] = value.lower()
 
     def decode_address(self, adapter):
         adapter['address'] = adapter.get('address').encode('latin-1').decode('unicode_escape')
 
-
+    def get_type(self, adapter):
+        type_mapping = {
+            "casa": "home",
+            "home": "home",
+            "sobrado": "home",
+            "two_story_house": "home",
+            "casa térrea": "home",
+            "condomínio": "home",
+            "apartamento": "apartment",
+            "cobertura": "apartment",
+            "penthouse": "apartment",
+        }
+        value_type = adapter.get('type').lower()
+        adapter['type'] = type_mapping.get(value_type, value_type)
+    
+    def format_number(self, adapter):
+        formatted_value = adapter.get('price').replace(".", "")
+        adapter['price'] = int(formatted_value)
 
 class SQLAlchemyPipeline:
     def __init__(self):
