@@ -18,9 +18,20 @@ import logging
 from scrapy.exceptions import DropItem
 
 class RealEstateCrawlerPipeline:
+    REQUIRED_FIELDS = [
+            'area',
+            'type',
+            'bedrooms',
+            'bathrooms',
+            'parking_spaces',
+            'price',
+            'address'
+        ]
+
     def process_item(self, item, spider):
         adapter = ItemAdapter(item)
 
+        self.check_required_fields(adapter)
         self.decode_address(adapter)
         self.get_type(adapter)
         self.format_number(adapter)
@@ -48,6 +59,11 @@ class RealEstateCrawlerPipeline:
     def format_number(self, adapter):
         formatted_value = adapter.get('price').replace(".", "")
         adapter['price'] = int(formatted_value)
+
+    def check_required_fields(self, adapter):
+        missing_fields = [field for field in self.REQUIRED_FIELDS if not adapter.get(field)]
+        if missing_fields:
+            raise DropItem(f"Item missing required fields: {', '.join(missing_fields)}")
 
 class SQLAlchemyPipeline:
     def __init__(self):
